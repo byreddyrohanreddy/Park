@@ -11,9 +11,9 @@ RUN apt-get update && apt-get install -y \
 # Create app directory
 WORKDIR /usr/src/app
 
-# We must use break-system-packages for system-wide pip install in python3.11+
+# We just use normal pip install since Debian Bullseye Python doesn't restrict it
 COPY requirements.txt ./
-RUN pip3 install --no-cache-dir --break-system-packages -r requirements.txt
+RUN pip3 install --no-cache-dir -r requirements.txt
 
 # Install Node dependencies
 COPY package*.json ./
