@@ -1,4 +1,4 @@
-FROM node:18-bullseye-slim
+FROM node:20-bullseye-slim
 
 # Install Python and audio system dependencies (libsndfile is critical for Librosa/Praat)
 RUN apt-get update && apt-get install -y \
