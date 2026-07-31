@@ -28,7 +28,7 @@ exports.uploadRecording = async (req, res) => {
             const audioAbsPath = path.resolve(req.file.path);
             
             // Execute the python script with the --json flag and absolute model_dir
-            const command = `python "${pythonScript}" --json --model_dir "${modelDir}" "${audioAbsPath}"`;
+            const command = `python3 "${pythonScript}" --json --model_dir "${modelDir}" "${audioAbsPath}"`;
             console.log("Executing:", command);
             
             const { stdout } = await exec(command);
