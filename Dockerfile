@@ -1,4 +1,4 @@
-FROM node:20-bullseye-slim
+FROM node:20-bookworm-slim
 
 # Install Python and audio system dependencies (libsndfile is critical for Librosa/Praat)
 RUN apt-get update && apt-get install -y \
@@ -11,9 +11,9 @@ RUN apt-get update && apt-get install -y \
 # Create app directory
 WORKDIR /usr/src/app
 
-# We just use normal pip install since Debian Bullseye Python doesn't restrict it
+# We use break-system-packages since Bookworm Python enforces PEP 668
 COPY requirements.txt ./
-RUN pip3 install --no-cache-dir -r requirements.txt
+RUN pip3 install --no-cache-dir --break-system-packages -r requirements.txt
 
 # Install Node dependencies
 COPY package*.json ./
