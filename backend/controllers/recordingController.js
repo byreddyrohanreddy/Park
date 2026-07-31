@@ -27,8 +27,11 @@ exports.uploadRecording = async (req, res) => {
             const modelDir = path.join(__dirname, "../ml/artifacts");
             const audioAbsPath = path.resolve(req.file.path);
             
+            // Use python3 on Linux (Cloud) and python on Windows (Local)
+            const pythonCmd = process.platform === "win32" ? "python" : "python3";
+            
             // Execute the python script with the --json flag and absolute model_dir
-            const command = `python3 "${pythonScript}" --json --model_dir "${modelDir}" "${audioAbsPath}"`;
+            const command = `${pythonCmd} "${pythonScript}" --json --model_dir "${modelDir}" "${audioAbsPath}"`;
             console.log("Executing:", command);
             
             const { stdout } = await exec(command);
