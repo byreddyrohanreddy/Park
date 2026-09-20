@@ -23,29 +23,15 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-
-    const allowed = [
-        "audio/wav",
-        "audio/x-wav",
-        "audio/mpeg",
-        "audio/mp3",
-        "audio/flac",
-        "audio/webm",
-        "audio/ogg"
-    ];
-
-    if (allowed.includes(file.mimetype)) {
-
+    const ext = path.extname(file.originalname).toLowerCase();
+    const allowedExts = [".wav", ".mp3", ".flac", ".ogg", ".mpeg", ".webm", ".aac", ".m4a"];
+    
+    if (allowedExts.includes(ext) || file.mimetype.startsWith("audio/") || file.mimetype === "video/mp4" && (ext === ".m4a" || ext === ".aac")) {
         cb(null, true);
-
     }
-
     else {
-
         cb(new Error("Only audio files are allowed"));
-
     }
-
 };
 
 module.exports = multer({

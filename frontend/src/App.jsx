@@ -9,6 +9,7 @@ import UploadAudio from "./pages/UploadAudio";
 import History from "./pages/History";
 import Profile from "./pages/Profile";
 import Result from "./pages/Result";
+import ClinicalReport from "./pages/ClinicalReport";
 
 
 function App() {
@@ -58,6 +59,11 @@ function App() {
         <Route 
           path="/result" 
           element={<Result />} 
+        />
+
+        <Route 
+          path="/clinical-report" 
+          element={<ClinicalReport />} 
         />
 
       </Routes>

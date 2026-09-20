@@ -55,7 +55,7 @@ my-3
 "
 >
 
-.wav .mp3 .flac supported
+.wav .mp3 .flac .aac .m4a supported
 
 </p>
 
@@ -64,7 +64,7 @@ my-3
 
 type="file"
 
-accept=".wav,.mp3,.flac"
+accept=".wav,.mp3,.flac,.ogg,.mpeg,.aac,.m4a,audio/*"
 
 onChange={(e)=>
 onFileSelect(e.target.files[0])

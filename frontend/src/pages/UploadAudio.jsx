@@ -19,6 +19,7 @@ function UploadAudio() {
   const navigate = useNavigate();
 
   const [file, setFile] = useState(null);
+  const [isPhoneRecording, setIsPhoneRecording] = useState(true);
 
   const [audioURL, setAudioURL] = useState("");
 
@@ -29,6 +30,8 @@ function UploadAudio() {
 
 
 
+  const [isNoisyMic, setIsNoisyMic] = useState(false);
+
   const handleFile = (selectedFile) => {
 
     setError("");
@@ -36,37 +39,27 @@ function UploadAudio() {
     if (!selectedFile) return;
 
     const allowed = [
-
       ".wav",
-
       ".mp3",
-
-      ".flac"
-
+      ".flac",
+      ".ogg",
+      ".mpeg",
+      ".aac",
+      ".m4a"
     ];
 
     const extension =
-
       selectedFile.name
-
       .substring(
-
         selectedFile.name.lastIndexOf(".")
-
       )
-
       .toLowerCase();
 
     if (!allowed.includes(extension)) {
-
       setError(
-
-        "Only WAV, MP3 and FLAC files are allowed."
-
+        "Only WAV, MP3, FLAC, OGG, MPEG, AAC, and M4A files are allowed."
       );
-
       return;
-
     }
 
     setFile(selectedFile);
@@ -103,7 +96,9 @@ function UploadAudio() {
 
         file,
 
-        "00:00"
+        "00:00",
+        
+        isPhoneRecording
 
       );
 
@@ -111,7 +106,7 @@ function UploadAudio() {
 
       if (data.success) {
         setSuccessMsg("Audio successfully uploaded and analyzed!");
-        setTimeout(() => navigate("/result", { state: { recording: data.recording } }), 1500);
+        setTimeout(() => navigate("/result", { state: { recording: data.recording, audioFile: file } }), 1500);
       } else {
 
         setError(
@@ -200,19 +195,12 @@ function UploadAudio() {
             </h3>
 
             <p className="text-gray-500 mt-2">
-
-              Supported formats: .wav, .mp3, .flac
-
+              Supported formats: .wav, .mp3, .flac, .ogg, .mpeg, .aac, .m4a
             </p>
-
             <input
-
               type="file"
-
               id="audioUpload"
-
-              accept=".wav,.mp3,.flac"
-
+              accept=".wav,.mp3,.flac,.ogg,.mpeg,.aac,.m4a,audio/*"
               className="hidden"
 
               onChange={(e) =>
@@ -333,14 +321,12 @@ function UploadAudio() {
               </div>
 
               <audio
-
                 controls
-
                 src={audioURL}
-
                 className="w-full mt-6"
-
               />
+
+
 
               <div className="flex justify-center gap-4 mt-6">
 
@@ -357,15 +343,10 @@ function UploadAudio() {
                   {
 
                     uploading
-
                     ?
-
-                    "Uploading..."
-
+                    "Analyzing with AI... (Wait ~10s)"
                     :
-
                     "Upload"
-
                   }
 
                 </Button>

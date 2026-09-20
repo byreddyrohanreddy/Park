@@ -46,3 +46,6 @@ app.use(
     "/api/dashboard",
     dashboardRoutes
 );
+
+const reportRoutes = require("./routes/reportRoutes");
+app.use("/api/report", reportRoutes);

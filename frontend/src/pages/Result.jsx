@@ -1,5 +1,5 @@
 import { useLocation, useNavigate, Navigate } from "react-router-dom";
-import { Activity, ShieldCheck, ArrowLeft, PlayCircle } from "lucide-react";
+import { Activity, ShieldCheck, ArrowLeft, PlayCircle, FileText } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import Card from "../components/Card";
 import Button from "../components/Button";
@@ -8,6 +8,7 @@ function Result() {
   const location = useLocation();
   const navigate = useNavigate();
   const recording = location.state?.recording;
+  const audioFile = location.state?.audioFile ?? null;
 
   if (!recording) {
     return <Navigate to="/dashboard" />;
@@ -52,8 +53,15 @@ function Result() {
             </p>
           </div>
 
-          <div className="flex justify-center">
-            <Button onClick={() => navigate("/dashboard")} className="px-8 py-3 flex items-center">
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <Button
+              onClick={() => navigate("/clinical-report", { state: { recording, audioFile } })}
+              className="px-8 py-3 flex items-center justify-center bg-teal-600 hover:bg-teal-700"
+            >
+              <FileText className="mr-2" size={20} />
+              View Clinical Report & Explainability
+            </Button>
+            <Button onClick={() => navigate("/dashboard")} className="px-8 py-3 flex items-center justify-center">
               <ArrowLeft className="mr-2" size={20} />
               Return to Dashboard
             </Button>

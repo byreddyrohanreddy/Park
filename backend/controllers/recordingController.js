@@ -27,18 +27,30 @@ exports.uploadRecording = async (req, res) => {
             const modelDir = path.join(__dirname, "../ml/artifacts");
             const audioAbsPath = path.resolve(req.file.path);
             
-            // Use python3 on Linux (Cloud) and python on Windows (Local)
-            const pythonCmd = process.platform === "win32" ? "python" : "python3";
+            // Read file into a Blob to send via native fetch FormData
+            const fileBuffer = fs.readFileSync(audioAbsPath);
+            const ext = path.extname(req.file.originalname || req.file.path) || '.wav';
+            const blob = new Blob([fileBuffer], { type: req.file.mimetype || 'audio/wav' });
             
-            // Execute the python script with the --json flag and absolute model_dir
-            const command = `${pythonCmd} "${pythonScript}" --json --model_dir "${modelDir}" "${audioAbsPath}"`;
-            console.log("Executing:", command);
+            const formData = new FormData();
+            formData.append('audio', blob, req.file.originalname || `audio${ext}`);
+            formData.append('isNoisyMic', req.body.isNoisyMic === 'true' ? 'true' : 'false');
             
-            const { stdout } = await exec(command);
-            console.log("ML Output:", stdout);
+            console.log("Sending to persistent ML API...");
             
-            // Parse the JSON array returned by the script
-            const results = JSON.parse(stdout.trim());
+            const response = await fetch('http://127.0.0.1:5001/predict', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const results = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(results.error || "ML API returned an error");
+            }
+            
+            console.log("ML Output:", results);
+            
             if (results && results.length > 0) {
                 const data = results[0];
                 predictionText = data.prediction === "PD" ? "Parkinson's Disease" : "Healthy Control";

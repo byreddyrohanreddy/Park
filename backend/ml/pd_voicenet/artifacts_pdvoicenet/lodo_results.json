@@ -1,0 +1,218 @@
+[
+  {
+    "accuracy": 49.382716049382715,
+    "precision": 48.78048780487805,
+    "recall": 50.0,
+    "f1": 49.382716049382715,
+    "n_subjects": 81,
+    "n_pd": 40,
+    "n_hc": 41,
+    "conformal_sets": {
+      "PD": 25,
+      "HC": 20,
+      "PD_HC": 0,
+      "empty": 36
+    },
+    "mean_alpha": 0.28019623596359183,
+    "temperature": 1.0465333675267272,
+    "site": "AH"
+  },
+  {
+    "accuracy": 98.4375,
+    "precision": 100.0,
+    "recall": 96.42857142857143,
+    "f1": 98.18181818181819,
+    "n_subjects": 64,
+    "n_pd": 28,
+    "n_hc": 36,
+    "conformal_sets": {
+      "PD": 27,
+      "HC": 37,
+      "PD_HC": 0,
+      "empty": 0
+    },
+    "mean_alpha": 0.3392543414665852,
+    "temperature": 1.2596643744158187,
+    "site": "B1"
+  },
+  {
+    "accuracy": 98.33333333333333,
+    "precision": 96.0,
+    "recall": 100.0,
+    "f1": 97.95918367346938,
+    "n_subjects": 60,
+    "n_pd": 24,
+    "n_hc": 36,
+    "conformal_sets": {
+      "PD": 23,
+      "HC": 35,
+      "PD_HC": 0,
+      "empty": 2
+    },
+    "mean_alpha": 0.40915316765507065,
+    "temperature": 1.1554348757064339,
+    "site": "B2"
+  },
+  {
+    "accuracy": 96.0,
+    "precision": 93.33333333333333,
+    "recall": 100.0,
+    "f1": 96.55172413793103,
+    "n_subjects": 50,
+    "n_pd": 28,
+    "n_hc": 22,
+    "conformal_sets": {
+      "PD": 29,
+      "HC": 19,
+      "PD_HC": 0,
+      "empty": 2
+    },
+    "mean_alpha": 0.5190744125843048,
+    "temperature": 0.7704274180835581,
+    "site": "D1"
+  },
+  {
+    "accuracy": 96.0,
+    "precision": 96.42857142857143,
+    "recall": 96.42857142857143,
+    "f1": 96.42857142857143,
+    "n_subjects": 50,
+    "n_pd": 28,
+    "n_hc": 22,
+    "conformal_sets": {
+      "PD": 28,
+      "HC": 22,
+      "PD_HC": 0,
+      "empty": 0
+    },
+    "mean_alpha": 0.39323188409209253,
+    "temperature": 0.6216154867714642,
+    "site": "D2"
+  },
+  {
+    "accuracy": 100.0,
+    "precision": 100.0,
+    "recall": 100.0,
+    "f1": 100.0,
+    "n_subjects": 47,
+    "n_pd": 26,
+    "n_hc": 21,
+    "conformal_sets": {
+      "PD": 26,
+      "HC": 21,
+      "PD_HC": 0,
+      "empty": 0
+    },
+    "mean_alpha": 0.40694090375240816,
+    "temperature": 1.6276093134038492,
+    "site": "FB"
+  },
+  {
+    "accuracy": 95.38461538461539,
+    "precision": 90.32258064516128,
+    "recall": 100.0,
+    "f1": 94.91525423728814,
+    "n_subjects": 65,
+    "n_pd": 28,
+    "n_hc": 37,
+    "conformal_sets": {
+      "PD": 29,
+      "HC": 33,
+      "PD_HC": 0,
+      "empty": 3
+    },
+    "mean_alpha": 0.42488809067469374,
+    "temperature": 1.1928776296520391,
+    "site": "PR"
+  },
+  {
+    "accuracy": 91.91919191919192,
+    "precision": 87.3015873015873,
+    "recall": 100.0,
+    "f1": 93.22033898305084,
+    "n_subjects": 99,
+    "n_pd": 55,
+    "n_hc": 44,
+    "conformal_sets": {
+      "PD": 60,
+      "HC": 39,
+      "PD_HC": 0,
+      "empty": 0
+    },
+    "mean_alpha": 0.3965389155077212,
+    "temperature": 1.0339783622250684,
+    "site": "VA"
+  },
+  {
+    "accuracy": 64.64646464646465,
+    "precision": 100.0,
+    "recall": 36.36363636363637,
+    "f1": 53.333333333333336,
+    "n_subjects": 99,
+    "n_pd": 55,
+    "n_hc": 44,
+    "conformal_sets": {
+      "PD": 20,
+      "HC": 73,
+      "PD_HC": 6,
+      "empty": 0
+    },
+    "mean_alpha": 0.3273804085423248,
+    "temperature": 1.3360948486388826,
+    "site": "VE"
+  },
+  {
+    "accuracy": 88.88888888888889,
+    "precision": 97.82608695652173,
+    "recall": 81.81818181818183,
+    "f1": 89.10891089108911,
+    "n_subjects": 99,
+    "n_pd": 55,
+    "n_hc": 44,
+    "conformal_sets": {
+      "PD": 41,
+      "HC": 51,
+      "PD_HC": 0,
+      "empty": 7
+    },
+    "mean_alpha": 0.4487724116805828,
+    "temperature": 1.6699848508053445,
+    "site": "VI"
+  },
+  {
+    "accuracy": 92.92929292929293,
+    "precision": 96.15384615384616,
+    "recall": 90.9090909090909,
+    "f1": 93.45794392523365,
+    "n_subjects": 99,
+    "n_pd": 55,
+    "n_hc": 44,
+    "conformal_sets": {
+      "PD": 52,
+      "HC": 47,
+      "PD_HC": 0,
+      "empty": 0
+    },
+    "mean_alpha": 0.3091028429793589,
+    "temperature": 1.8427973129597444,
+    "site": "VO"
+  },
+  {
+    "accuracy": 91.57894736842105,
+    "precision": 86.88524590163934,
+    "recall": 100.0,
+    "f1": 92.98245614035088,
+    "n_subjects": 95,
+    "n_pd": 53,
+    "n_hc": 42,
+    "conformal_sets": {
+      "PD": 63,
+      "HC": 30,
+      "PD_HC": 0,
+      "empty": 2
+    },
+    "mean_alpha": 0.32019884727503123,
+    "temperature": 1.2435970487378103,
+    "site": "VU"
+  }
+]

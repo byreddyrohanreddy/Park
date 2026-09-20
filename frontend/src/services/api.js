@@ -156,29 +156,22 @@ export const getRecordings = getHistory;
 // -------------------------
 
 export const uploadAudio = async (
-
     file,
-
-    duration = "00:00"
-
+    duration = "00:00",
+    isNoisyMic = false
 ) => {
-
     const formData = new FormData();
-
     formData.append(
-
         "audio",
-
         file
-
     );
-
     formData.append(
-
         "duration",
-
         duration
-
+    );
+    formData.append(
+        "isNoisyMic",
+        isNoisyMic ? "true" : "false"
     );
 
     const response = await fetch(
@@ -247,6 +240,76 @@ export const deleteRecording = async (
 export const getRecordingURL = (id) => {
 
     return `${API_URL}/recordings/${id}`;
+
+};
+
+
+
+// -------------------------
+// Generate Clinical Report
+// -------------------------
+
+export const generateReport = async (payload, audience = "clinician") => {
+
+    const response = await fetch(
+
+        `${API_URL}/report/generate`,
+
+        {
+
+            method: "POST",
+
+            headers: {
+
+                "Content-Type": "application/json",
+
+                Authorization: `Bearer ${getToken()}`
+
+            },
+
+            body: JSON.stringify({ payload, audience })
+
+        }
+
+    );
+
+    return response.json();
+
+};
+
+
+
+// -------------------------
+// Get Explainability Data
+// POST /api/report/explainability — sends audio file, gets back SHAP + Grad-CAM + Saliency
+// -------------------------
+
+export const getExplainability = async (audioFile) => {
+
+    const formData = new FormData();
+    formData.append("audio", audioFile);
+
+    const response = await fetch(
+
+        `${API_URL}/report/explainability`,
+
+        {
+
+            method: "POST",
+
+            headers: {
+
+                Authorization: `Bearer ${getToken()}`
+
+            },
+
+            body: formData
+
+        }
+
+    );
+
+    return response.json();
 
 };
 

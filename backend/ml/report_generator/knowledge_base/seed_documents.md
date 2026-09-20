@@ -1,0 +1,62 @@
+# PD-VoiceNet Knowledge Base — Seed Documents
+
+This file contains verified reference text for the RAG pipeline. Each
+section is a separate retrieval chunk. **Do not add content to this file
+unless it is directly sourced from a cited reference or from the
+PD-VoiceNet architecture specification.**
+
+---
+
+## CHUNK: MFCC Definition
+**Source:** Shen, Mortezaagha & Rahgozar (2025), Scientific Reports 15:11687, Appendix A §1.
+
+Mel-frequency cepstral coefficients (MFCCs) are coefficients that collectively represent the short-term power spectrum of a sound. In voice-based Parkinson's disease analysis, MFCCs such as mfcc_3, mfcc_11, and mfcc_5 are used to distinguish between healthy controls (HC) and PD patients, with higher MFCC values often indicating PD.
+
+---
+
+## CHUNK: Jitter Definition
+**Source:** Shen, Mortezaagha & Rahgozar (2025), Scientific Reports 15:11687, Appendix A §2.
+
+Jitter is a measure of frequency variation from cycle to cycle in voice signals, indicating potential vocal fold instability. It is used to identify fine variations in vocal recordings that are symptomatic of Parkinson's disease.
+
+---
+
+## CHUNK: Shimmer Definition
+**Source:** Shen, Mortezaagha & Rahgozar (2025), Scientific Reports 15:11687, Appendix A §3.
+
+Shimmer is a measure of amplitude variation from cycle to cycle, used to detect issues in vocal fold function. It is used to identify fine variations in vocal recordings that are symptomatic of Parkinson's disease.
+
+---
+
+## CHUNK: HNR Definition
+**Source:** Shen, Mortezaagha & Rahgozar (2025), Scientific Reports 15:11687, Appendix A §4.
+
+Harmonic-to-noise ratio (HNR) is the ratio between harmonic components of the data and noise components. Lower HNR values indicate a breathier or noisier voice, which can be indicative of Parkinson's disease. HNR contributes to the model's predictions by looking for conventional symptoms of PD.
+
+---
+
+## CHUNK: SHAP Definition
+**Source:** Shen, Mortezaagha & Rahgozar (2025), Scientific Reports 15:11687, Appendix A §6.
+
+SHapley Additive exPlanations (SHAP) provides a way to explain the output of machine learning by showing the contribution of each acoustic feature to the predictions. SHAP is used to interpret the model's predictions, offering insight into the extent to which acoustic features contributed to the final classification.
+
+---
+
+## CHUNK: PD-VoiceNet Alpha (Modality Dominance)
+**Source:** PD-VoiceNet Architecture Specification (this project).
+
+PD-VoiceNet uses a modality gate that produces a scalar value called alpha (α). Alpha indicates how much a specific prediction relied on deep audio features (from the Wav2Vec2 SSL branch) versus classical acoustic biomarkers (jitter, shimmer, HNR, MFCCs). An alpha value greater than 0.5 means the model weighted deep audio patterns more heavily for this particular recording; an alpha value less than 0.5 means it weighted classical acoustic measurements more heavily. Alpha is computed per-subject from the biomarker branch output and reflects the model's learned judgment about which modality is more informative for each individual case.
+
+---
+
+## CHUNK: Conformal Prediction Set
+**Source:** PD-VoiceNet Architecture Specification (this project).
+
+PD-VoiceNet uses Mondrian (class-conditional) conformal prediction to produce prediction sets instead of single-point predictions. A prediction set of {PD} means the model is confident the subject has Parkinson's disease characteristics. A prediction set of {HC} means the model is confident the subject is a healthy control. A prediction set of {PD, HC} means the model could not confidently distinguish between PD and HC for this recording, and clinical follow-up is recommended. An empty prediction set {} is a contradictory result that also warrants clinical follow-up. Non-singleton prediction sets (including empty sets) trigger an uncertainty flag, indicating the model's output should be interpreted with additional caution.
+
+---
+
+## CHUNK: Decision Support Disclaimer
+**Source:** PD-VoiceNet Architecture Specification (this project).
+
+PD-VoiceNet is a clinical decision-support tool, not a diagnostic device. Its outputs — including predictions, confidence intervals, and modality dominance scores — are intended to assist qualified clinicians in their assessment and should never be used as a standalone basis for diagnosis, treatment decisions, or clinical action. All results must be reviewed in the context of a full clinical evaluation by a qualified healthcare professional.

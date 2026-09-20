@@ -78,6 +78,8 @@ function RecordVoice() {
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
 
+  const [isNoisyMic, setIsNoisyMic] = useState(true);
+
   const mediaRecorder = useRef(null);
 
   const chunks = useRef([]);
@@ -135,7 +137,12 @@ function RecordVoice() {
         }
       });
 
-      mediaRecorder.current = new MediaRecorder(stream);
+      const options = {};
+      if (MediaRecorder.isTypeSupported('audio/webm;codecs=pcm')) {
+        options.mimeType = 'audio/webm;codecs=pcm';
+      }
+      
+      mediaRecorder.current = new MediaRecorder(stream, options);
 
       chunks.current = [];
 
@@ -268,7 +275,9 @@ function RecordVoice() {
 
         file,
 
-        formatTime()
+        formatTime(),
+
+        true
 
       );
 
@@ -584,7 +593,7 @@ function RecordVoice() {
 
                     ?
 
-                    "Uploading..."
+                    "Analyzing with AI... (Wait ~10s)"
 
                     :
 

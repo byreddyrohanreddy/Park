@@ -1,8 +1,60 @@
+# Dependencies
 node_modules/
 backend/node_modules/
 frontend/node_modules/
+
+# Environment files
 .env
 backend/.env
+frontend/.env
+!*.env.example
+
+# Temporary uploads and outputs
 uploads/
 backend/uploads/
+*.wav
+*.mp3
+*.aac
+*.m4a
+*.ogg
+*.flac
+!data/**/*.wav
+
+# Python artifacts and caches
+__pycache__/
+*/__pycache__/
+*/*/__pycache__/
+*/*/*/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+
+# Vite build
+frontend/dist/
+dist/
+
+# Large training caches (880MB precomputed tensors)
+backend/ml/pd_voicenet/artifacts_pdvoicenet/cache/
+
+# Redundant training fold checkpoints (keep production fold_FB)
+backend/ml/pd_voicenet/artifacts_pdvoicenet/fold_AH/
+backend/ml/pd_voicenet/artifacts_pdvoicenet/fold_B1/
+backend/ml/pd_voicenet/artifacts_pdvoicenet/fold_B2/
+backend/ml/pd_voicenet/artifacts_pdvoicenet/fold_D1/
+backend/ml/pd_voicenet/artifacts_pdvoicenet/fold_D2/
+backend/ml/pd_voicenet/artifacts_pdvoicenet/fold_PR/
+backend/ml/pd_voicenet/artifacts_pdvoicenet/fold_VA/
+backend/ml/pd_voicenet/artifacts_pdvoicenet/fold_VE/
+backend/ml/pd_voicenet/artifacts_pdvoicenet/fold_VI/
+backend/ml/pd_voicenet/artifacts_pdvoicenet/fold_VO/
+backend/ml/pd_voicenet/artifacts_pdvoicenet/fold_VU/
+
+# OS and IDE files
 .DS_Store
+Thumbs.db
+.vscode/
+.idea/
