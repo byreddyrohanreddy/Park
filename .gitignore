@@ -58,3 +58,7 @@ backend/ml/pd_voicenet/artifacts_pdvoicenet/fold_VU/
 Thumbs.db
 .vscode/
 .idea/
+
+# Research paper & drafts (kept local, excluded from public repo)
+paper/
+

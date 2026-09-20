@@ -282,7 +282,6 @@ PD/
 │   ├── tailwind.config.js             # Tailwind CSS styling tokens
 │   └── vite.config.js                 # Vite bundler configuration
 ├── data/                              # Clinical audio dataset samples
-├── paper/                             # Research paper draft, references, and docx
 ├── .gitignore                         # Configured git exclusions
 ├── package.json                       # Root script runners
 └── requirements.txt                   # Python dependencies
