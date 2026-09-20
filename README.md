@@ -22,11 +22,12 @@
 7. [Universal Audio Normalization Engine](#-universal-audio-normalization-engine)
 8. [Dual-Audience Clinical Report Engine](#-dual-audience-clinical-report-engine)
 9. [Project Directory Structure](#-project-directory-structure)
-10. [Prerequisites & Installation](#-prerequisites--installation)
-11. [Running the Application](#-running-the-application)
-12. [API Reference](#-api-reference)
-13. [Experimental Results & Cross-Validation](#-experimental-results--cross-validation)
-14. [Medical Disclaimer](#-medical-disclaimer)
+10. [Prerequisites & What to Install](#-prerequisites--what-to-install)
+11. [How to Run the Project (Step-by-Step)](#-how-to-run-the-project-step-by-step)
+12. [⚠️ What is Missing / Not in the Git Repository](#️-what-is-missing--not-in-the-git-repository)
+13. [API Reference](#-api-reference)
+14. [Experimental Results & Cross-Validation](#-experimental-results--cross-validation)
+15. [Medical Disclaimer](#-medical-disclaimer)
 
 ---
 
@@ -289,106 +290,260 @@ PD/
 
 ---
 
-## ⚡ Prerequisites & Installation
+## 📦 Prerequisites & What to Install
 
-### 1. Prerequisites
-- **Node.js**: v18.0.0 or higher ([Download Node.js](https://nodejs.org/))
-- **Python**: v3.10 or v3.11 with Conda or virtualenv ([Miniconda](https://docs.conda.io/en/latest/miniconda.html))
-- **MongoDB**: Local MongoDB instance running on `mongodb://127.0.0.1:27017` or MongoDB Atlas URI ([Download MongoDB](https://www.mongodb.com/try/download/community))
-- **CUDA** (Optional): NVIDIA GPU with CUDA 11.8+ for accelerated inference.
+To run VoiceCare AI locally, you need three core system components: **Python** (for ML inference), **Node.js** (for backend API & frontend), and **MongoDB** (for database persistence).
+
+### 1. System Software Prerequisites
+
+| Tool | Recommended Version | Download Link | Purpose |
+|------|---------------------|---------------|---------|
+| **Python** | `3.10` or `3.11` (3.11 recommended) | [Miniconda](https://docs.conda.io/projects/miniconda/en/latest/) / [Python.org](https://www.python.org/) | ML inference, PyAV, Praat, PyTorch |
+| **Node.js & npm** | Node `18.x` or `20.x` LTS (npm `9+`) | [NodeJS.org](https://nodejs.org/) | Express API gateway and Vite React client |
+| **MongoDB** | `6.0` or `7.0` (or MongoDB Atlas) | [MongoDB Community Server](https://www.mongodb.com/try/download/community) | Storing user accounts and voice prediction history |
+| **Git** | `2.30+` | [Git-SCM](https://git-scm.com/) | Cloning and version control |
+| **CUDA** (Optional) | `11.8` or `12.1` | [NVIDIA CUDA Toolkit](https://developer.nvidia.com/cuda-toolkit) | GPU-accelerated inference (CPU works automatically) |
 
 ---
 
-### 2. Python Environment Setup
-Create and activate a dedicated Python environment:
+### 2. Step 1: Clone the Repository
 
 ```bash
-# Using Conda (Recommended)
+git clone https://github.com/byreddyrohanreddy/Park.git
+cd Park
+```
+
+---
+
+### 3. Step 2: Python Environment & Dependencies
+
+We strongly recommend using **Miniconda** or a clean virtual environment to avoid package collisions:
+
+```bash
+# 1. Create a dedicated Python 3.11 environment
 conda create -n voicecare python=3.11 -y
 conda activate voicecare
 
-# Install Python requirements
+# 2. Upgrade pip to latest version
+python -m pip install --upgrade pip
+
+# 3. Install all ML, audio processing, and server requirements
 pip install -r requirements.txt
 ```
 
-*Key Python dependencies include:* `torch`, `transformers`, `librosa`, `praat-parselmouth`, `av`, `soundfile`, `shap`, `flask`, `scikit-learn`, `numpy`.
+#### What `requirements.txt` Installs:
+- **`torch`**: Deep learning computational framework for PD-VoiceNet inference.
+- **`transformers`**: HuggingFace library powering the `Wav2Vec2Model` acoustic foundation backbone.
+- **`praat-parselmouth`**: Python C-bindings to Praat phonetics software for acoustic perturbation extraction (Jitter, Shimmer, Burg Formants, HNR).
+- **`librosa`**: High-performance audio signal analysis, spectrogram computation, and MFCC extraction.
+- **`av` (PyAV)**: Statically linked FFmpeg C-bindings for universal audio codec decoding (`.aac`, `.m4a`, `.mp3`, `.ogg`, `.flac`, `.wav`).
+- **`soundfile`**: Audio I/O library for 16 kHz mono 16-bit PCM WAV standardization.
+- **`shap`**: SHapley Additive exPlanations for feature attribution across the 21 biomarkers.
+- **`flask` & `werkzeug`**: Microservice HTTP server hosting the ML endpoints on port 5001.
+- **`scikit-learn`**: Feature standard scaling, calibration transforms, and metric evaluation.
+- **`numpy`**: Numerical tensor arrays.
 
 ---
 
-### 3. Node.js Environment Setup
-From the repository root, install Node dependencies for both the backend and frontend:
+### 4. Step 3: Node.js Dependencies
+
+Install dependencies for both the Express backend and the Vite frontend:
 
 ```bash
-# Install root & backend dependencies
+# 1. Install root and backend dependencies (from project root)
 npm install
 
-# Install frontend dependencies
+# 2. Install frontend dependencies
 cd frontend
 npm install
 cd ..
 ```
 
+#### What Node.js Installs:
+- **Backend**: `express` (web server), `mongoose` (MongoDB ORM), `multer` (multipart audio uploads), `jsonwebtoken` & `bcryptjs` (secure JWT authentication & password hashing), `cors`, `dotenv`, `nodemon` (auto-reloader), `concurrently` (concurrent service runner).
+- **Frontend**: `react` & `react-dom` (v18), `react-router-dom` (routing), `vite` (high-speed bundler), `tailwindcss` & `postcss` (responsive UI styling), `lucide-react` & `react-icons` (clinical icons), `recharts` (biomarker charts), `framer-motion` (smooth animations), `axios` (HTTP client).
+
 ---
 
-### 4. Configuration
-Create `.env` files from the provided examples:
+### 5. Step 4: Environment Variables (`.env`)
+
+Copy the provided example files into active `.env` files:
 
 ```bash
-# Backend environment
+# 1. Backend environment
 cp backend/.env.example backend/.env
 
-# Frontend environment
+# 2. Frontend environment
 cp frontend/.env.example frontend/.env
 ```
 
-Default `backend/.env`:
+Review `backend/.env`:
 ```ini
 PORT=5000
 MONGO_URI=mongodb://127.0.0.1:27017/voicecare
-JWT_SECRET=voicecare_secret_key_change_in_production
+JWT_SECRET=voicecare_super_secret_jwt_key_2026
 FLASK_ML=http://127.0.0.1:5001
 FLASK_REPORT=http://127.0.0.1:5001
 ```
 
----
-
-## 🚀 Running the Application
-
-### Option A: Concurrent Startup (All Services)
-You can start all three services simultaneously from the root directory:
-
-```bash
-npm run dev
+Review `frontend/.env`:
+```ini
+# Set to 'false' to communicate with live Flask explainability/reporting
+VITE_USE_MOCK_EXPLAINABILITY=false
 ```
-*(Requires `concurrently`, starts Node.js backend on `5000`, Vite frontend on `5173`, and Flask on `5001`)*
 
 ---
 
-### Option B: Individual Microservices (Recommended for Development)
+## 🚀 How to Run the Project (Step-by-Step)
 
-Open three terminal windows:
+VoiceCare AI consists of three interconnected services:
+1. **Flask ML Backend** on `http://127.0.0.1:5001` (Python)
+2. **Node.js / Express API Gateway** on `http://localhost:5000` (Node)
+3. **React / Vite Frontend** on `http://localhost:5173` (Vite)
 
-#### Terminal 1 — Python Flask ML Service
+### Pre-Flight Check: Ensure MongoDB is Running
+Before starting the web services, verify that MongoDB is active:
+
 ```bash
+# Windows (PowerShell / Command Prompt as Admin)
+net start MongoDB
+
+# Linux (systemd)
+sudo systemctl start mongod
+
+# macOS (Homebrew)
+brew services start mongodb-community
+```
+
+---
+
+### Method A: Three-Terminal Setup (Recommended for Full Visibility)
+
+Opening three separate terminal windows allows you to observe real-time inference times, model loads, and database queries.
+
+#### 🖥️ Terminal 1: Python Flask ML Service
+```bash
+# 1. Activate your Python environment
 conda activate voicecare
+
+# 2. Navigate to ML directory and run
 cd backend/ml
 python app.py
 ```
-*Output: `PD-VoiceNet ready. Running on http://127.0.0.1:5001`*
+**Expected Console Output:**
+```
+Loading Wav2Vec2 backbone...
+Loading PD-VoiceNet weights from .../artifacts_pdvoicenet/fold_FB...
+PD-VoiceNet ready. T=1.6276 q_hat={0: 0.18724, 1: 0.30545}
+ * Serving Flask app 'app'
+ * Running on http://127.0.0.1:5001
+```
+*Health Check:* Open `http://127.0.0.1:5001/health` in your browser. You should see `{"device":"cuda","model":"PD-VoiceNet","status":"ok"}`.
 
-#### Terminal 2 — Node.js Express API
+---
+
+#### 🖥️ Terminal 2: Node.js Express API Server
 ```bash
+# From project root:
 npm run server
 ```
-*Output: `Server running on http://localhost:5000 | MongoDB Connected`*
-
-#### Terminal 3 — React Frontend (Vite)
-```bash
-npm run client
+**Expected Console Output:**
 ```
-*Output: `Local: http://localhost:5173/`*
+[nodemon] starting `node backend/server.js`
+Server running on port 5000
+MongoDB Connected: 127.0.0.1
+```
 
-Now open **`http://localhost:5173`** in your browser.
+---
+
+#### 🖥️ Terminal 3: React / Vite Frontend
+```bash
+# From project root:
+npm run client
+
+# (Or alternatively: cd frontend && npm run dev)
+```
+**Expected Console Output:**
+```
+  VITE v8.1.5  ready in 214 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+```
+
+---
+
+### Method B: Single-Command All-in-One Runner
+
+If you prefer launching everything from a single console tab:
+
+```bash
+# From project root with Python environment active:
+conda activate voicecare
+npm run dev
+```
+*(Uses `concurrently` to launch all three servers simultaneously)*
+
+---
+
+### 🌐 End-to-End User Testing Guide
+
+Once all three services are running:
+1. Open your browser and navigate to **`http://localhost:5173`**.
+2. Click **Sign In / Register** and create a new account (e.g. `dr.smith@clinic.org` / `Password123!`).
+3. You will be redirected to the **Clinical Voice Portal Dashboard**.
+4. Test an audio recording:
+   - **Option A (Upload)**: Navigate to **Upload Audio**, drag and drop any audio file (`.wav`, `.mp3`, `.aac`, `.m4a`, `.flac`, `.ogg`). Sample recordings can be found in `data/AH_dataset/HC_AH/` (Healthy) and `data/AH_dataset/PD_AH/` (Parkinson's).
+   - **Option B (Live Phonation)**: Navigate to **Record Voice**, hold your sustained vowel sound (`/a/`) for 3–5 seconds, and click Stop & Analyze.
+5. Review the **Results Screen**:
+   - Classification output: `Parkinson's Disease` or `Healthy Control`
+   - Confidence probability score (%)
+   - Conformal Prediction set status: `High Confidence`, `Uncertain`, or `Abstain`
+6. Click **View Clinical Report** to inspect:
+   - **SHAP Feature Importance**: Bar charts ranking the 21 acoustic biomarkers.
+   - **Grad-CAM Attention Map**: Interactive waveform heatmaps pinpointing tremor intervals.
+   - **Saliency Token Map**: Token-level latent backpropagation.
+   - **Clinical / Patient Report**: Downloadable reports tailored for either medical specialists or patients.
+
+---
+
+## ⚠️ What is Missing / Not in the Git Repository
+
+To ensure rapid cloning, clean architecture, and strict adherence to GitHub file-size limits, certain non-source assets and secret configurations are intentionally excluded from the git repository. Here is the full breakdown and how to address each:
+
+### 1. Environment Files (`.env`)
+- **Status**: Excluded by `.gitignore` for security.
+- **Why**: Prevent leaking database credentials, server ports, and JWT encryption keys to public version control.
+- **How to resolve**: Copy `backend/.env.example` to `backend/.env` and `frontend/.env.example` to `frontend/.env`.
+
+### 2. MongoDB Database & User Records
+- **Status**: Not bundled in the repository.
+- **Why**: Git is designed for application source code, not database data files.
+- **How to resolve**: Run a local MongoDB daemon (`net start MongoDB` on Windows or `sudo systemctl start mongod` on Linux) or provide a cloud connection URI in `backend/.env` (`MONGO_URI=mongodb+srv://...`). On first launch, Mongoose automatically initializes the database and schemas.
+
+### 3. Pretrained Wav2Vec 2.0 Base Weights (`facebook/wav2vec2-base`)
+- **Status**: Not committed to git (~360 MB).
+- **Why**: Standard open-source practice; foundation model weights are hosted on Hugging Face Hub.
+- **How to resolve**: **Zero manual action required!** When you start `python app.py` for the first time, `transformers` will automatically download `facebook/wav2vec2-base` from Hugging Face and cache it locally in `~/.cache/huggingface/hub/`. *(Requires an active internet connection on the first launch)*.
+
+### 4. Large Cross-Validation Tensor Cache (`cache/`)
+- **Status**: Excluded by `.gitignore` (~880 MB).
+- **Why**: Contains offline precomputed PyTorch `.pt` feature tensors used during experimental training.
+- **Impact on Inference**: **None!** The production trained model weights (**`fold_FB/model.pt`**, 81.7 MB), calibration statistics, and feature scalers are **fully included** in the git repository under `backend/ml/pd_voicenet/artifacts_pdvoicenet/fold_FB/`. Inference works out of the box without needing the training cache.
+
+### 5. Redundant Training Fold Checkpoints
+- **Status**: Excluded by `.gitignore` (~900 MB total).
+- **Why**: The 11 non-production experimental folds (`fold_AH`, `fold_B1`, `fold_D1`, etc.) were left out to prevent repository bloat.
+- **Impact on Inference**: **None.** The production deployed fold (`fold_FB` achieving 100% test accuracy on held-out validation) is included and actively loaded by `app.py`.
+
+### 6. Historical User Uploads (`uploads/`)
+- **Status**: Excluded by `.gitignore`.
+- **Why**: Preserves medical data privacy and HIPAA guidelines; prevents local audio recordings from past testing sessions from being published to GitHub.
+- **How to resolve**: Audio files are created dynamically as you upload or record. Sample audio files are available in `data/AH_dataset/`.
+
+### 7. Research Papers & Draft Manuscripts (`paper/`)
+- **Status**: Excluded from GitHub tracking.
+- **Why**: Excluded to safeguard unpublished manuscripts, conference templates, and pre-publication intellectual property. All operational code and architecture documentation are contained in this repository.
 
 ---
 
