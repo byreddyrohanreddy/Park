@@ -85,47 +85,109 @@ def load_model():
 def extract_biomarkers(wav_path):
     y, sr = librosa.load(wav_path, sr=16000, mono=True, duration=25.0)
     y, _ = librosa.effects.trim(y, top_db=25)
+    
+    # Handle empty or near-silent audio gracefully
+    if len(y) < 1600 or np.max(np.abs(y)) < 1e-4:
+        return np.copy(global_scaler_mean)
+
     sound = parselmouth.Sound(y, sampling_frequency=sr)
-    pitch = sound.to_pitch()
-    f0 = pitch.selected_array["frequency"]
-    f0v = f0[f0 > 0]
-    mean_f0, std_f0, min_f0, max_f0 = (
-        (float(f0v.mean()), float(f0v.std()), float(f0v.min()), float(f0v.max()))
-        if len(f0v) > 0 else (0.0, 0.0, 0.0, 0.0)
-    )
-    pp = call(sound, "To PointProcess (periodic, cc)", 75, 500)
-    lj  = call(pp, "Get jitter (local)",  0, 0, 0.0001, 0.02, 1.3)
-    p5j = call(pp, "Get jitter (ppq5)",   0, 0, 0.0001, 0.02, 1.3)
-    rj  = call(pp, "Get jitter (rap)",    0, 0, 0.0001, 0.02, 1.3)
-    ls   = call([sound, pp], "Get shimmer (local)",  0, 0, 0.0001, 0.02, 1.3, 1.6)
-    a3s  = call([sound, pp], "Get shimmer (apq3)",   0, 0, 0.0001, 0.02, 1.3, 1.6)
-    a5s  = call([sound, pp], "Get shimmer (apq5)",   0, 0, 0.0001, 0.02, 1.3, 1.6)
-    a11s = call([sound, pp], "Get shimmer (apq11)",  0, 0, 0.0001, 0.02, 1.3, 1.6)
-    dda  = call([sound, pp], "Get shimmer (dda)",    0, 0, 0.0001, 0.02, 1.3, 1.6)
-    harm = call(sound, "To Harmonicity (cc)", 0.01, 75, 0.1, 1.0)
-    hnr  = call(harm, "Get mean", 0, 0)
-    nhr  = 1.0 / (10 ** (hnr / 10)) if hnr > 0 else 0.0
-    mfccs = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=7)
-    mfcc_means = [float(np.mean(mfccs[i])) for i in range(1, 7)]
-    fmt = call(sound, "To Formant (burg)", 0.0, 5, 5500, 0.025, 50)
-    def fstat(obj, n):
+
+    def safe_val(val, default=0.0):
         try:
-            return (call(obj, "Get mean", n, 0, 0, "Hertz"),
-                    call(obj, "Get standard deviation", n, 0, 0, "Hertz"))
+            v = float(val)
+            return default if (np.isnan(v) or np.isinf(v)) else v
         except Exception:
-            return 0.0, 0.0
-    f1f, f1b = fstat(fmt, 1)
-    f2f, f2b = fstat(fmt, 2)
-    f3f, f3b = fstat(fmt, 3)
-    return np.array([
+            return default
+
+    try:
+        pitch = sound.to_pitch()
+        f0 = pitch.selected_array["frequency"]
+        f0v = f0[f0 > 0]
+        mean_f0 = safe_val(f0v.mean() if len(f0v) > 0 else 0.0, default=global_scaler_mean[10])
+        std_f0  = safe_val(f0v.std()  if len(f0v) > 0 else 0.0, default=global_scaler_mean[11])
+        min_f0  = safe_val(f0v.min()  if len(f0v) > 0 else 0.0, default=global_scaler_mean[12])
+        max_f0  = safe_val(f0v.max()  if len(f0v) > 0 else 0.0, default=global_scaler_mean[13])
+    except Exception:
+        mean_f0 = float(global_scaler_mean[10])
+        std_f0  = float(global_scaler_mean[11])
+        min_f0  = float(global_scaler_mean[12])
+        max_f0  = float(global_scaler_mean[13])
+
+    try:
+        pp = call(sound, "To PointProcess (periodic, cc)", 75, 500)
+        num_points = call(pp, "Get number of points")
+    except Exception:
+        pp = None
+        num_points = 0
+
+    if pp is not None and num_points > 1:
+        lj  = safe_val(call(pp, "Get jitter (local)",  0, 0, 0.0001, 0.02, 1.3), default=global_scaler_mean[0])
+        p5j = safe_val(call(pp, "Get jitter (ppq5)",   0, 0, 0.0001, 0.02, 1.3), default=global_scaler_mean[1])
+        rj  = safe_val(call(pp, "Get jitter (rap)",    0, 0, 0.0001, 0.02, 1.3), default=global_scaler_mean[2])
+        ls  = safe_val(call([sound, pp], "Get shimmer (local)",  0, 0, 0.0001, 0.02, 1.3, 1.6), default=global_scaler_mean[3])
+        a3s = safe_val(call([sound, pp], "Get shimmer (apq3)",   0, 0, 0.0001, 0.02, 1.3, 1.6), default=global_scaler_mean[4])
+        a5s = safe_val(call([sound, pp], "Get shimmer (apq5)",   0, 0, 0.0001, 0.02, 1.3, 1.6), default=global_scaler_mean[5])
+        a11s= safe_val(call([sound, pp], "Get shimmer (apq11)",  0, 0, 0.0001, 0.02, 1.3, 1.6), default=global_scaler_mean[6])
+        dda = safe_val(call([sound, pp], "Get shimmer (dda)",    0, 0, 0.0001, 0.02, 1.3, 1.6), default=global_scaler_mean[7])
+    else:
+        lj  = float(global_scaler_mean[0])
+        p5j = float(global_scaler_mean[1])
+        rj  = float(global_scaler_mean[2])
+        ls  = float(global_scaler_mean[3])
+        a3s = float(global_scaler_mean[4])
+        a5s = float(global_scaler_mean[5])
+        a11s= float(global_scaler_mean[6])
+        dda = float(global_scaler_mean[7])
+
+    try:
+        harm = call(sound, "To Harmonicity (cc)", 0.01, 75, 0.1, 1.0)
+        hnr  = safe_val(call(harm, "Get mean", 0, 0), default=global_scaler_mean[8])
+    except Exception:
+        hnr = float(global_scaler_mean[8])
+    nhr = float(1.0 / (10 ** (hnr / 10))) if (hnr > 0 and not np.isinf(hnr)) else float(global_scaler_mean[9])
+
+    try:
+        mfccs = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=7)
+        mfcc_means = [safe_val(np.mean(mfccs[i]), default=global_scaler_mean[14+i]) for i in range(1, 7)]
+    except Exception:
+        mfcc_means = [float(global_scaler_mean[14+i]) for i in range(1, 7)]
+
+    try:
+        fmt = call(sound, "To Formant (burg)", 0.0, 5, 5500, 0.025, 50)
+        def fstat(obj, n, def_f, def_b):
+            try:
+                f_val = safe_val(call(obj, "Get mean", n, 0, 0, "Hertz"), default=def_f)
+                b_val = safe_val(call(obj, "Get standard deviation", n, 0, 0, "Hertz"), default=def_b)
+                return f_val, b_val
+            except Exception:
+                return def_f, def_b
+        f1f, f1b = fstat(fmt, 1, global_scaler_mean[20], global_scaler_mean[23])
+        f2f, f2b = fstat(fmt, 2, global_scaler_mean[21], global_scaler_mean[24])
+        f3f, f3b = fstat(fmt, 3, global_scaler_mean[22], global_scaler_mean[25])
+    except Exception:
+        f1f, f1b = float(global_scaler_mean[20]), float(global_scaler_mean[23])
+        f2f, f2b = float(global_scaler_mean[21]), float(global_scaler_mean[24])
+        f3f, f3b = float(global_scaler_mean[22]), float(global_scaler_mean[25])
+
+    raw = np.array([
         lj, p5j, rj, ls, a3s, a5s, a11s, dda,
         hnr, nhr, mean_f0, std_f0, min_f0, max_f0,
         *mfcc_means, f1f, f2f, f3f, f1b, f2b, f3b,
     ], dtype=np.float32)
 
+    nan_mask = np.isnan(raw) | np.isinf(raw)
+    if nan_mask.any():
+        raw[nan_mask] = global_scaler_mean[nan_mask]
+
+    return raw
+
 
 def scale_bio(raw):
-    return (raw - global_scaler_mean) / (global_scaler_scale + 1e-8)
+    nan_mask = np.isnan(raw) | np.isinf(raw)
+    if nan_mask.any():
+        raw[nan_mask] = global_scaler_mean[nan_mask]
+    scaled = (raw - global_scaler_mean) / (global_scaler_scale + 1e-8)
+    return np.nan_to_num(scaled, nan=0.0, posinf=3.0, neginf=-3.0)
 
 
 def ensure_wav(input_path, target_sr=16000):
@@ -188,13 +250,24 @@ def cache_ssl(wav_path):
 
 
 def run_inference(ssl_act, bio_scaled):
+    bio_scaled = np.nan_to_num(bio_scaled, nan=0.0, posinf=3.0, neginf=-3.0)
     bio_t = torch.tensor(bio_scaled, dtype=torch.float32).unsqueeze(0).to(device)
     with torch.no_grad():
         logits, alpha, _ = global_model([ssl_act], bio_t)
-        probs = F.softmax(logits / global_temperature, dim=0).cpu().numpy()
+        if torch.isnan(logits).any() or torch.isinf(logits).any():
+            logits = torch.tensor([[0.0, 0.0]], device=device)
+        probs = F.softmax(logits / global_temperature, dim=-1).squeeze(0).cpu().numpy()
+        probs = np.nan_to_num(probs, nan=0.5)
+
+        alpha_val = float(alpha.squeeze().cpu())
+        if np.isnan(alpha_val) or np.isinf(alpha_val):
+            alpha_val = 0.5
+
     prob_pd = float(probs[1])
-    pred = "PD" if probs[1] > probs[0] else "HC"
-    scores = {0: 1 - float(probs[0]), 1: 1 - float(probs[1])}
+    prob_pd = 0.5 if (np.isnan(prob_pd) or np.isinf(prob_pd)) else prob_pd
+    prob_hc = 1.0 - prob_pd
+    pred = "PD" if prob_pd > prob_hc else "HC"
+    scores = {0: 1 - prob_hc, 1: 1 - prob_pd}
     conf = [c for c in [0, 1] if scores[c] <= global_q_hat[c]]
     if len(conf) == 2:
         conf_label = "uncertain"
@@ -202,7 +275,7 @@ def run_inference(ssl_act, bio_scaled):
         conf_label = "PD" if conf[0] == 1 else "HC"
     else:
         conf_label = "abstain"
-    return pred, prob_pd, conf_label, float(alpha.cpu())
+    return pred, prob_pd, conf_label, alpha_val
 
 
 # ── Routes ────────────────────────────────────────────────────────────────────
@@ -229,12 +302,15 @@ def predict():
             bio_scaled = scale_bio(extract_biomarkers(clean_tmp))
             ssl_act    = cache_ssl(clean_tmp)
             pred, prob_pd, conf_label, alpha = run_inference(ssl_act, bio_scaled)
-        dur = librosa.get_duration(path=clean_tmp)
+        dur = float(librosa.get_duration(path=clean_tmp))
+        dur = 0.0 if (np.isnan(dur) or np.isinf(dur)) else dur
+        alpha = 0.5 if (np.isnan(alpha) or np.isinf(alpha)) else float(alpha)
+        prob_pd = 0.5 if (np.isnan(prob_pd) or np.isinf(prob_pd)) else float(prob_pd)
         return jsonify([{
-            "prediction":    pred,
+            "prediction":     pred,
             "probability_pd": prob_pd,
-            "duration":      f"{int(dur//60):02d}:{int(dur%60):02d}",
-            "conformal_set": conf_label,
+            "duration":       f"{int(dur//60):02d}:{int(dur%60):02d}",
+            "conformal_set":  conf_label,
             "modality_alpha": alpha,
         }])
     except Exception as e:
@@ -269,7 +345,8 @@ def explainability():
         return jsonify({"error": "Provide audio field or audio_b64"}), 400
     try:
         clean_tmp = ensure_wav(raw_tmp)
-        dur = librosa.get_duration(path=clean_tmp)
+        dur = float(librosa.get_duration(path=clean_tmp))
+        dur = 0.0 if (np.isnan(dur) or np.isinf(dur)) else dur
         with model_lock:
             raw_bio    = extract_biomarkers(clean_tmp)
             bio_scaled = scale_bio(raw_bio)
@@ -279,6 +356,11 @@ def explainability():
             shap_vals, base_val = _shap(bio_scaled, ssl_act)
             gradcam_vals        = _gradcam(ssl_act)
             saliency_vals       = _saliency(ssl_act, bio_t)
+
+            shap_vals = np.nan_to_num(shap_vals, nan=0.0)
+            gradcam_vals = np.nan_to_num(gradcam_vals, nan=0.0)
+            saliency_vals = np.nan_to_num(saliency_vals, nan=0.0)
+            base_val = 0.5 if (np.isnan(base_val) or np.isinf(base_val)) else float(base_val)
 
         return jsonify({
             "shap":     {"values": shap_vals.tolist(), "names": BIOMARKER_NAMES, "base_value": base_val},

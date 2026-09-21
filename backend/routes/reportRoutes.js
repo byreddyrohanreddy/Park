@@ -76,11 +76,22 @@ router.post("/explainability", auth, upload.single("audio"), async (req, res) =>
       // Do NOT set Content-Type manually — fetch auto-sets multipart/form-data with correct boundary
     });
 
-    const data = await flaskRes.json();
+    const rawText = await flaskRes.text();
+    let data;
+    try {
+      const sanitizedText = rawText
+        .replace(/:\s*NaN\b/g, ': null')
+        .replace(/:\s*Infinity\b/g, ': 999999')
+        .replace(/:\s*-Infinity\b/g, ': -999999');
+      data = JSON.parse(sanitizedText);
+    } catch (parseErr) {
+      console.error("Flask explainability parse error:", rawText);
+      return res.status(500).json({ success: false, message: "Invalid JSON response from ML service" });
+    }
 
     if (!flaskRes.ok) {
       console.error("Flask explainability error:", JSON.stringify(data));
-      return res.status(flaskRes.status).json({ success: false, message: data.error || "Explainability failed" });
+      return res.status(flaskRes.status).json({ success: false, message: (data && data.error) || "Explainability failed" });
     }
 
     res.json({ success: true, ...data });

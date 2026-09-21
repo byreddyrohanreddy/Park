@@ -43,10 +43,22 @@ exports.uploadRecording = async (req, res) => {
                 body: formData
             });
             
-            const results = await response.json();
+            const rawText = await response.text();
+            let results;
+            try {
+                // Sanitize any non-standard JSON tokens (e.g. NaN or Infinity)
+                const sanitizedText = rawText
+                    .replace(/:\s*NaN\b/g, ': null')
+                    .replace(/:\s*Infinity\b/g, ': 999999')
+                    .replace(/:\s*-Infinity\b/g, ': -999999');
+                results = JSON.parse(sanitizedText);
+            } catch (jsonErr) {
+                console.error("Failed to parse ML response:", rawText);
+                throw new Error("Invalid response format from ML service");
+            }
             
             if (!response.ok) {
-                throw new Error(results.error || "ML API returned an error");
+                throw new Error((results && results.error) || "ML API returned an error");
             }
             
             console.log("ML Output:", results);
@@ -56,7 +68,10 @@ exports.uploadRecording = async (req, res) => {
                 predictionText = data.prediction === "PD" ? "Parkinson's Disease" : "Healthy Control";
                 
                 // Convert decimal to percentage for frontend compatibility
-                const rawProb = data.prediction === "PD" ? data.probability_pd : (1.0 - data.probability_pd);
+                const validProb = (typeof data.probability_pd === 'number' && !isNaN(data.probability_pd))
+                    ? data.probability_pd
+                    : 0.5;
+                const rawProb = data.prediction === "PD" ? validProb : (1.0 - validProb);
                 confidenceScore = Math.round(rawProb * 100);
                 
                 // Get accurate duration from python script
