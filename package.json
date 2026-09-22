@@ -4,11 +4,11 @@
   "description": "",
   "main": "backend/server.js",
   "scripts": {
+    "start": "node run.js",
+    "dev": "node run.js",
     "server": "nodemon backend/server.js",
     "client": "npm run dev --prefix frontend",
-    "ml": "python backend/ml/app.py",
-    "dev": "concurrently \"npm run server\" \"npm run client\" \"npm run ml\"",
-    "start": "node backend/server.js"
+    "ml": "python backend/ml/app.py"
   },
   "keywords": [],
   "author": "",

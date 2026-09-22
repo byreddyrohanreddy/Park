@@ -417,72 +417,48 @@ brew services start mongodb-community
 
 ---
 
-### Method A: Three-Terminal Setup (Recommended for Full Visibility)
+### ⚡ Method A: One-Command Unified Launcher (Recommended)
 
-Opening three separate terminal windows allows you to observe real-time inference times, model loads, and database queries.
+To launch the entire platform with one single command without opening multiple terminal windows:
 
-#### 🖥️ Terminal 1: Python Flask ML Service
-```bash
-# 1. Activate your Python environment
-conda activate voicecare
-
-# 2. Navigate to ML directory and run
-cd backend/ml
-python app.py
-```
-**Expected Console Output:**
-```
-Loading Wav2Vec2 backbone...
-Loading PD-VoiceNet weights from .../artifacts_pdvoicenet/fold_FB...
-PD-VoiceNet ready. T=1.6276 q_hat={0: 0.18724, 1: 0.30545}
- * Serving Flask app 'app'
- * Running on http://127.0.0.1:5001
-```
-*Health Check:* Open `http://127.0.0.1:5001/health` in your browser. You should see `{"device":"cuda","model":"PD-VoiceNet","status":"ok"}`.
-
----
-
-#### 🖥️ Terminal 2: Node.js Express API Server
 ```bash
 # From project root:
-npm run server
-```
-**Expected Console Output:**
-```
-[nodemon] starting `node backend/server.js`
-Server running on port 5000
-MongoDB Connected: 127.0.0.1
-```
+npm start
 
----
-
-#### 🖥️ Terminal 3: React / Vite Frontend
-```bash
-# From project root:
-npm run client
-
-# (Or alternatively: cd frontend && npm run dev)
-```
-**Expected Console Output:**
-```
-  VITE v8.1.5  ready in 214 ms
-
-  ➜  Local:   http://localhost:5173/
-  ➜  Network: use --host to expose
-```
-
----
-
-### Method B: Single-Command All-in-One Runner
-
-If you prefer launching everything from a single console tab:
-
-```bash
-# From project root with Python environment active:
-conda activate voicecare
+# Or:
 npm run dev
+
+# On Windows, you can also simply double-click:
+start.bat
 ```
-*(Uses `concurrently` to launch all three servers simultaneously)*
+
+The unified runner (`run.js`):
+- **Automatically detects your `ml` conda environment** (at `~/miniconda3/envs/ml` or `conda run -n ml`).
+- Frees any orphaned background processes holding ports 5000 or 5001.
+- Concurrently launches the **Flask ML engine (:5001)**, **Express API (:5000)**, and **Vite Frontend (:5173)**.
+- Formats and color-codes console outputs with `[ML-API]`, `[NODE]`, and `[VITE]` prefixes.
+- Cleanly terminates all child processes when you press `Ctrl + C`.
+
+---
+
+### Method B: Manual Microservice Startup (3 Terminals)
+
+If you prefer opening three separate terminal tabs to monitor each service independently:
+
+1. **Terminal 1 — Python Flask ML Engine (:5001)**:
+   ```bash
+   conda activate ml
+   cd backend/ml
+   python app.py
+   ```
+2. **Terminal 2 — Node.js Express API (:5000)**:
+   ```bash
+   npm run server
+   ```
+3. **Terminal 3 — React / Vite Frontend (:5173)**:
+   ```bash
+   npm run client
+   ```
 
 ---
 
